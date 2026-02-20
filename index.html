@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Print Booklate – Print Your Documents as Booklets</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="icon" href="/favicon.ico" type="image/x-icon">
+<link rel="icon" href="Print booklate.png" type="image/x-icon">
+<style>
+  :root {
+    --ink: #1a1209;
+    --paper: #fdf8f0;
+    --cream: #f5eddb;
+    --amber: #d97706;
+    --amber-light: #fbbf24;
+    --rust: #c2410c;
+    --muted: #78716c;
+    --border: #e8dece;
+    --white: #ffffff;
+    --success: #16a34a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--paper); color: var(--ink); overflow-x: hidden; }
+
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--ink);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 2rem; height: 60px;
+  }
+  .nav-logo { font-family: 'Playfair Display', serif; font-size: 1.4rem; color: var(--paper); }
+  .nav-logo span { color: var(--amber-light); }
+  .nav-links { display: flex; gap: 1.5rem; }
+  .nav-links a { color: #d4c9b8; text-decoration: none; font-size: 0.9rem; font-weight: 500; transition: color 0.2s; }
+  .nav-links a:hover { color: var(--amber-light); }
+  .nav-cta { background: var(--amber); color: var(--ink) !important; padding: 0.4rem 1.1rem; border-radius: 4px; font-weight: 600 !important; }
+  .nav-cta:hover { background: var(--amber-light) !important; }
+  .hamburger { display: none; background: none; border: none; cursor: pointer; flex-direction: column; gap: 5px; }
+  .hamburger span { width: 22px; height: 2px; background: var(--paper); border-radius: 2px; display: block; }
+  @media(max-width:680px){
+    .nav-links { display: none; position: absolute; top: 60px; left: 0; right: 0; background: var(--ink); flex-direction: column; padding: 1rem 2rem; gap: 1rem; }
+    .nav-links.open { display: flex; }
+    .hamburger { display: flex; }
+  }
+
+  .hero { background: var(--ink); padding: 5rem 2rem 4rem; text-align: center; position: relative; overflow: hidden; }
+  .hero::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse at 60% 40%, rgba(217,119,6,0.18) 0%, transparent 65%); }
+  .hero-tag { display: inline-block; background: rgba(217,119,6,0.2); color: var(--amber-light); font-size: 0.78rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; padding: 0.35rem 1rem; border-radius: 2px; margin-bottom: 1.5rem; border: 1px solid rgba(217,119,6,0.35); }
+  .hero h1 { font-family: 'Playfair Display', serif; font-size: clamp(2.5rem, 6vw, 4.5rem); color: var(--paper); line-height: 1.1; margin-bottom: 1.2rem; position: relative; }
+  .hero h1 em { color: var(--amber-light); font-style: normal; }
+  .hero p { color: #a89e8e; font-size: 1.05rem; max-width: 550px; margin: 0 auto 2.5rem; line-height: 1.7; }
+  .hero-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+  .btn-primary { background: var(--amber); color: var(--ink); padding: 0.8rem 2rem; border-radius: 4px; font-weight: 600; font-size: 0.95rem; text-decoration: none; transition: all 0.2s; display: inline-block; }
+  .btn-primary:hover { background: var(--amber-light); transform: translateY(-1px); }
+  .btn-secondary { background: transparent; color: var(--paper); padding: 0.8rem 2rem; border-radius: 4px; font-weight: 500; font-size: 0.95rem; text-decoration: none; transition: all 0.2s; border: 1px solid #5a5247; display: inline-block; }
+  .btn-secondary:hover { border-color: var(--amber); color: var(--amber-light); }
+  .hero-specs { display: flex; justify-content: center; gap: 2.5rem; margin-top: 3rem; flex-wrap: wrap; }
+  .spec-item { text-align: center; }
+  .spec-item .val { font-family: 'Playfair Display', serif; font-size: 1.8rem; color: var(--amber-light); }
+  .spec-item .lbl { font-size: 0.78rem; color: #8a7e70; text-transform: uppercase; letter-spacing: 1px; margin-top: 2px; }
+
+  section { padding: 5rem 2rem; }
+  .container { max-width: 1050px; margin: 0 auto; }
+  .section-tag { font-size: 0.75rem; font-weight: 600; letter-spacing: 2.5px; text-transform: uppercase; color: var(--amber); margin-bottom: 0.8rem; }
+  .section-title { font-family: 'Playfair Display', serif; font-size: clamp(1.8rem, 3.5vw, 2.6rem); line-height: 1.2; margin-bottom: 1rem; }
+  .section-sub { color: var(--muted); font-size: 1rem; line-height: 1.7; max-width: 520px; }
+  .section-divider { height: 1px; background: var(--border); max-width: 1050px; margin: 0 auto; }
+
+  .hiw { background: var(--cream); }
+  .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 3rem; }
+  .step-card { background: var(--white); border-radius: 8px; padding: 1.8rem 1.5rem; border: 1px solid var(--border); position: relative; }
+  .step-num { font-family: 'Playfair Display', serif; font-size: 2.5rem; color: var(--border); position: absolute; top: 1rem; right: 1.2rem; line-height: 1; }
+  .step-icon { font-size: 2rem; margin-bottom: 1rem; }
+  .step-card h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; }
+  .step-card p { font-size: 0.88rem; color: var(--muted); line-height: 1.6; }
+
+  .calc-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 2.5rem; margin-top: 3rem; align-items: start; }
+  @media(max-width:700px){ .calc-wrap { grid-template-columns: 1fr; } }
+  .calc-box { background: var(--ink); border-radius: 10px; padding: 2rem; color: var(--paper); }
+  .calc-box h3 { font-family: 'Playfair Display', serif; font-size: 1.4rem; margin-bottom: 1.5rem; }
+  .calc-field { margin-bottom: 1.2rem; }
+  .calc-field label { font-size: 0.82rem; color: #a89e8e; font-weight: 500; display: block; margin-bottom: 0.4rem; }
+  .calc-field input, .calc-field select { width: 100%; background: #2a241a; border: 1px solid #4a4035; border-radius: 5px; color: var(--paper); padding: 0.65rem 0.9rem; font-family: 'DM Sans', sans-serif; font-size: 0.95rem; }
+  .calc-field input:focus, .calc-field select:focus { outline: none; border-color: var(--amber); }
+  .calc-field select option { background: #2a241a; }
+  .calc-btn { width: 100%; background: var(--amber); color: var(--ink); border: none; padding: 0.8rem; border-radius: 5px; font-weight: 700; font-size: 1rem; cursor: pointer; font-family: 'DM Sans', sans-serif; margin-top: 0.5rem; }
+  .calc-btn:hover { background: var(--amber-light); }
+  .calc-result { background: var(--cream); border-radius: 10px; padding: 2rem; border: 1px solid var(--border); min-height: 300px; display: flex; flex-direction: column; justify-content: center; }
+  .result-placeholder { text-align: center; color: var(--muted); }
+  .result-placeholder .icon { font-size: 3rem; margin-bottom: 1rem; }
+  .result-placeholder p { font-size: 0.9rem; }
+  .result-breakdown { display: none; }
+  .result-breakdown.show { display: block; }
+  .result-breakdown h3 { font-family: 'Playfair Display', serif; font-size: 1.3rem; margin-bottom: 1.5rem; }
+  .rb-row { display: flex; justify-content: space-between; padding: 0.7rem 0; border-bottom: 1px solid var(--border); font-size: 0.9rem; }
+  .rb-row .label { color: var(--muted); }
+  .rb-row .val { font-weight: 600; }
+  .rb-total { display: flex; justify-content: space-between; padding: 1rem 0 0; margin-top: 0.3rem; }
+  .rb-total .label { font-weight: 700; font-size: 1rem; }
+  .rb-total .val { font-family: 'Playfair Display', serif; font-size: 1.5rem; color: var(--amber); }
+  .note-box { background: rgba(217,119,6,0.1); border: 1px solid rgba(217,119,6,0.3); border-radius: 5px; padding: 0.8rem 1rem; font-size: 0.82rem; color: var(--ink); margin-top: 1rem; line-height: 1.6; }
+  .calc-order-btn { display: block; width: 100%; margin-top: 1.5rem; background: var(--ink); color: var(--paper); text-align: center; padding: 0.8rem; border-radius: 5px; font-weight: 700; font-size: 0.95rem; text-decoration: none; transition: background 0.2s; }
+  .calc-order-btn:hover { background: var(--rust); }
+
+  .guideline-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 1.2rem; margin-top: 2.5rem; }
+  .g-card { background: var(--cream); border-radius: 8px; padding: 1.5rem; border-left: 3px solid var(--amber); }
+  .g-card h4 { font-size: 0.95rem; margin-bottom: 0.4rem; }
+  .g-card p { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+
+  .order-sect { background: var(--cream); }
+  .order-center { max-width: 650px; margin: 3rem auto 0; }
+  .order-box { background: var(--white); border-radius: 12px; padding: 3rem 2.5rem; border: 1px solid var(--border); text-align: center; }
+  .order-box .big-icon { font-size: 3.5rem; margin-bottom: 1rem; }
+  .order-box h3 { font-family: 'Playfair Display', serif; font-size: 1.6rem; margin-bottom: 0.8rem; }
+  .order-box > p { color: var(--muted); font-size: 0.95rem; line-height: 1.7; margin-bottom: 2rem; }
+  .order-steps-mini { display: flex; flex-direction: column; gap: 0.8rem; text-align: left; margin-bottom: 2rem; background: var(--cream); border-radius: 8px; padding: 1.5rem; }
+  .osm-row { display: flex; align-items: flex-start; gap: 0.8rem; font-size: 0.88rem; }
+  .osm-num { background: var(--amber); color: var(--ink); width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem; flex-shrink: 0; margin-top: 1px; }
+  .osm-row p { color: var(--ink); line-height: 1.5; }
+  .payment-info-box { background: #fef3c7; border: 1px solid #fcd34d; border-radius: 8px; padding: 1.2rem 1.5rem; text-align: left; margin-bottom: 2rem; font-size: 0.88rem; line-height: 1.7; }
+  .upi-id { font-family: 'Playfair Display', serif; font-size: 1.1rem; color: var(--amber); display: block; margin-top: 0.3rem; }
+  .google-form-btn { display: inline-block; background: var(--amber); color: var(--ink); padding: 1rem 2.5rem; border-radius: 6px; font-weight: 700; font-size: 1.05rem; text-decoration: none; transition: all 0.2s; box-shadow: 0 4px 15px rgba(217,119,6,0.3); }
+  .google-form-btn:hover { background: var(--amber-light); transform: translateY(-2px); }
+  .form-note { margin-top: 1rem; font-size: 0.8rem; color: var(--muted); }
+
+  .track-info { background: var(--ink); }
+  .track-info-box { max-width: 650px; margin: 2.5rem auto 0; background: #2a241a; border-radius: 10px; padding: 2.5rem; border: 1px solid #4a4035; text-align: center; }
+  .track-info-box .icon { font-size: 3rem; margin-bottom: 1rem; }
+  .track-info-box h3 { font-family: 'Playfair Display', serif; color: var(--paper); font-size: 1.4rem; margin-bottom: 1rem; }
+  .track-info-box p { color: #a89e8e; font-size: 0.93rem; line-height: 1.7; margin-bottom: 1.2rem; }
+  .track-steps { display: flex; flex-direction: column; gap: 0.7rem; text-align: left; margin-bottom: 1.5rem; }
+  .ts-info-row { display: flex; align-items: flex-start; gap: 0.8rem; font-size: 0.88rem; color: #c4b89e; }
+  .ts-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
+  .delhivery-btn { display: inline-block; background: var(--amber); color: var(--ink); padding: 0.7rem 1.8rem; border-radius: 5px; font-weight: 700; text-decoration: none; font-size: 0.9rem; transition: background 0.2s; }
+  .delhivery-btn:hover { background: var(--amber-light); }
+
+  .support { background: var(--cream); }
+  .contact-cards { display: flex; gap: 1.5rem; flex-wrap: wrap; margin-top: 2.5rem; }
+  .contact-card { flex: 1; min-width: 220px; background: var(--white); border-radius: 8px; padding: 1.8rem; border: 1px solid var(--border); text-align: center; }
+  .contact-card .icon { font-size: 2rem; margin-bottom: 0.8rem; }
+  .contact-card h3 { font-size: 1rem; margin-bottom: 0.4rem; }
+  .contact-card p { font-size: 0.85rem; color: var(--muted); margin-bottom: 0.8rem; }
+  .contact-card a { display: inline-block; background: var(--ink); color: var(--paper); padding: 0.5rem 1.2rem; border-radius: 4px; font-size: 0.88rem; font-weight: 600; text-decoration: none; transition: background 0.2s; }
+  .contact-card a:hover { background: var(--amber); color: var(--ink); }
+
+  footer { background: var(--ink); color: #8a7e70; padding: 2.5rem 2rem; text-align: center; }
+  footer .logo { font-family: 'Playfair Display', serif; font-size: 1.3rem; color: var(--paper); margin-bottom: 0.5rem; }
+  footer .logo span { color: var(--amber-light); }
+  footer p { font-size: 0.83rem; line-height: 1.6; }
+  footer a { color: var(--amber-light); text-decoration: none; }
+
+  #admin-login { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; }
+  #admin-login.show { display: flex; }
+  .admin-box { background: var(--white); border-radius: 10px; padding: 2.5rem; width: 90%; max-width: 380px; position: relative; }
+  .admin-box h2 { font-family: 'Playfair Display', serif; margin-bottom: 1.5rem; }
+  .admin-box input { width: 100%; border: 1.5px solid var(--border); border-radius: 5px; padding: 0.65rem 0.9rem; font-family: 'DM Sans', sans-serif; margin-bottom: 1rem; font-size: 0.93rem; }
+  .admin-box input:focus { outline: none; border-color: var(--amber); }
+  .admin-login-btn { width: 100%; background: var(--ink); color: var(--paper); border: none; padding: 0.8rem; border-radius: 5px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+  .admin-close { position: absolute; top: 1rem; right: 1.2rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--ink); }
+
+  #admin-dashboard { display: none; position: fixed; inset: 0; background: var(--paper); z-index: 1000; overflow-y: auto; }
+  #admin-dashboard.show { display: block; }
+  .admin-header { background: var(--ink); padding: 1rem 2rem; display: flex; justify-content: space-between; align-items: center; }
+  .admin-header span { font-family: 'Playfair Display', serif; color: var(--paper); font-size: 1.2rem; }
+  .admin-header button { background: var(--rust); color: var(--white); border: none; padding: 0.4rem 1rem; border-radius: 4px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+  .admin-content { padding: 2rem; max-width: 900px; margin: 0 auto; }
+  .admin-content h2 { font-family: 'Playfair Display', serif; margin-bottom: 1rem; }
+  .admin-info-box { background: #fef3c7; border: 1px solid #fcd34d; border-radius: 8px; padding: 1.2rem 1.5rem; font-size: 0.9rem; line-height: 1.7; margin-bottom: 1.5rem; }
+  .admin-info-box a { color: var(--amber); font-weight: 600; }
+  .admin-links { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  @media(max-width:500px){ .admin-links { grid-template-columns: 1fr; } }
+  .admin-link-card { background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; text-align: center; }
+  .admin-link-card .icon { font-size: 2rem; margin-bottom: 0.5rem; }
+  .admin-link-card h3 { font-size: 0.95rem; margin-bottom: 0.4rem; }
+  .admin-link-card p { font-size: 0.82rem; color: var(--muted); margin-bottom: 0.8rem; }
+  .admin-link-card a { display: inline-block; background: var(--ink); color: var(--paper); padding: 0.5rem 1.2rem; border-radius: 4px; font-size: 0.85rem; font-weight: 600; text-decoration: none; }
+  .admin-link-card a:hover { background: var(--amber); color: var(--ink); }
+
+  .toast { position: fixed; bottom: 2rem; right: 2rem; background: var(--ink); color: var(--paper); padding: 0.9rem 1.5rem; border-radius: 6px; font-size: 0.9rem; transform: translateY(100px); transition: transform 0.3s; z-index: 999; border-left: 3px solid var(--success); }
+  .toast.show { transform: translateY(0); }
+  .toast.error { border-left-color: var(--rust); }
+
+  .fade-in { opacity: 0; transform: translateY(20px); transition: opacity 0.5s, transform 0.5s; }
+  .fade-in.visible { opacity: 1; transform: translateY(0); }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">Print <span>Booklate</span></div>
+  <div class="nav-links" id="navLinks">
+    <a href="#how-it-works">How It Works</a>
+    <a href="#calculator">Calculator</a>
+    <a href="#order">Order Now</a>
+    <a href="#tracking">Track Order</a>
+    <a href="#support">Support</a>
+    <a href="#order" class="nav-cta">Order Now</a>
+  </div>
+  <button class="hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-tag">📖 Professional Booklet Printing – Pan India</div>
+  <h1>Turn Your Documents<br>Into <em>Printed Booklets</em></h1>
+  <p>Upload your PDF, pay via UPI, and receive a professionally printed 16×22 cm booklet delivered to your door via Delhivery.</p>
+  <div class="hero-btns">
+    <a href="#order" class="btn-primary">Start Your Order</a>
+    <a href="#calculator" class="btn-secondary">Calculate Cost</a>
+  </div>
+  <div class="hero-specs">
+    <div class="spec-item"><div class="val">16×22</div><div class="lbl">Booklet Size (cm)</div></div>
+    <div class="spec-item"><div class="val">₹0.80</div><div class="lbl">Per Page</div></div>
+    <div class="spec-item"><div class="val">32</div><div class="lbl">Recommended Lines/Page</div></div>
+    <div class="spec-item"><div class="val">Pan India</div><div class="lbl">Delivery via Delhivery</div></div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="hiw" id="how-it-works">
+  <div class="container">
+    <div class="section-tag">Simple Process</div>
+    <h2 class="section-title">How It Works</h2>
+    <p class="section-sub">From calculating your cost to holding your booklet — here's the full journey.</p>
+    <div class="steps-grid fade-in">
+      <div class="step-card">
+        <div class="step-num">01</div>
+        <div class="step-icon">🧮</div>
+        <h3>Calculate Your Cost</h3>
+        <p>Use our price calculator to get an instant breakdown of printing, packaging, and delivery charges before ordering.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">02</div>
+        <div class="step-icon">💳</div>
+        <h3>Pay via UPI</h3>
+        <p>Pay the full amount upfront to UPI ID <strong>robusinessa@gmail.com</strong>. Note your transaction ID after payment.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">03</div>
+        <div class="step-icon">📋</div>
+        <h3>Fill the Order Form</h3>
+        <p>Open our Google Form, fill in your details, enter your UPI transaction ID, and upload your PDF + cover page.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">04</div>
+        <div class="step-icon">🖨️</div>
+        <h3>We Print Your Booklet</h3>
+        <p>Your document is printed in 16×22 cm booklet format, carefully packaged, and dispatched via Delhivery.</p>
+      </div>
+      <div class="step-card">
+        <div class="step-num">05</div>
+        <div class="step-icon">📦</div>
+        <h3>Track &amp; Receive</h3>
+        <p>We WhatsApp you the Delhivery AWB tracking number. Track your shipment and receive your booklet at home!</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- CALCULATOR -->
+<section id="calculator">
+  <div class="container">
+    <div class="section-tag">Transparent Pricing</div>
+    <h2 class="section-title">Price Calculator</h2>
+    <p class="section-sub">Get an instant breakdown of printing, packaging, and estimated delivery cost before you order.</p>
+    <div class="calc-wrap fade-in">
+      <div class="calc-box">
+        <h3>📊 Calculate Your Cost</h3>
+        <div class="calc-field">
+          <label>Number of Pages (A4)</label>
+          <input type="number" id="calc-pages" min="1" placeholder="e.g. 20" />
+        </div>
+        <div class="calc-field">
+          <label>Number of Copies / Pieces</label>
+          <input type="number" id="calc-copies" min="1" placeholder="e.g. 5" />
+        </div>
+        <div class="calc-field">
+          <label>Your State (for delivery estimate)</label>
+          <select id="calc-state">
+            <option value="">-- Select State --</option>
+            <option value="local">West Bengal (Local)</option>
+            <option value="zone1">Delhi, UP, Bihar, Jharkhand</option>
+            <option value="zone2">Maharashtra, MP, Rajasthan, Gujarat</option>
+            <option value="zone3">Karnataka, Tamil Nadu, Andhra, Telangana, Kerala</option>
+            <option value="zone4">Northeast, J&amp;K, Himachal, Uttarakhand</option>
+          </select>
+        </div>
+        <button class="calc-btn" onclick="calculateCost()">Calculate Price →</button>
+      </div>
+      <div class="calc-result" id="calc-result">
+        <div class="result-placeholder" id="result-placeholder">
+          <div class="icon">🧮</div>
+          <p>Fill in the details on the left<br>and click <strong>Calculate</strong> to see<br>your full price breakdown.</p>
+        </div>
+        <div class="result-breakdown" id="result-breakdown">
+          <h3>💰 Price Breakdown</h3>
+          <div class="rb-row"><span class="label">Printing Cost</span><span class="val" id="rb-print">—</span></div>
+          <div class="rb-row"><span class="label">Packaging Cost</span><span class="val" id="rb-pack">—</span></div>
+          <div class="rb-row"><span class="label">Est. Delivery Cost</span><span class="val" id="rb-delivery">—</span></div>
+          <div class="rb-total">
+            <span class="label">Total Estimated Cost</span>
+            <span class="val" id="rb-total">—</span>
+          </div>
+          <div class="note-box" id="rb-note"></div>
+          <a href="https://forms.gle/hQrovZxyDqmnBSr8A" target="_blank" class="calc-order-btn">✅ Ready? Place Your Order →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- GUIDELINES -->
+<section id="guidelines">
+  <div class="container">
+    <div class="section-tag">Before You Upload</div>
+    <h2 class="section-title">Document Guidelines</h2>
+    <p class="section-sub">Follow these guidelines to ensure the best print quality for your booklet.</p>
+    <div class="guideline-cards fade-in">
+      <div class="g-card"><h4>📐 Page Size</h4><p>Upload your document as A4 size pages. The output will be printed in 16×22 cm booklet format.</p></div>
+      <div class="g-card"><h4>📝 Lines Per Page</h4><p><strong>Recommended:</strong> 32 lines/page. <strong>Maximum:</strong> 35 lines/page. Exceeding this may cause text to be cut off.</p></div>
+      <div class="g-card"><h4>📁 File Format</h4><p>Upload PDF files for best results. Ensure all fonts are embedded and the document is not password-protected.</p></div>
+      <div class="g-card"><h4>🎨 Cover Page</h4><p>Upload a separate cover page in the order form. It can be a PDF or image file with your custom design.</p></div>
+      <div class="g-card"><h4>💳 Pay First</h4><p>Full payment must be made via UPI to <strong>robusinessa@gmail.com</strong> before submitting the order form.</p></div>
+      <div class="g-card"><h4>📦 Delivery</h4><p>All orders shipped Pan India via Delhivery. Delivery takes 3–7 business days depending on your location.</p></div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- ORDER -->
+<section class="order-sect" id="order">
+  <div class="container">
+    <div class="section-tag">Place Your Order</div>
+    <h2 class="section-title">Order Your Booklet</h2>
+    <p class="section-sub">Pay first via UPI, then fill our Google Form. Your details and PDF go directly to us.</p>
+    <div class="order-center fade-in">
+      <div class="order-box">
+        <div class="big-icon">📋</div>
+        <h3>Ready to Order?</h3>
+        <p>Follow these 3 simple steps — pay, then fill the form. Your PDF uploads directly to our Google Drive.</p>
+        <div class="order-steps-mini">
+          <div class="osm-row">
+            <div class="osm-num">1</div>
+            <p><strong>Calculate your cost</strong> using the calculator above so you know the exact amount.</p>
+          </div>
+          <div class="osm-row">
+            <div class="osm-num">2</div>
+            <p><strong>Pay via UPI</strong> to <strong>aslamloves@fam</strong>. Save your Transaction ID / UTR number.</p>
+          </div>
+          <div class="osm-row">
+            <div class="osm-num">3</div>
+            <p><strong>Fill the Order Form</strong> below — enter your details, UPI transaction ID, and upload your PDF + cover page.</p>
+          </div>
+        </div>
+        <div class="payment-info-box">
+          💳 <strong>Pay First via UPI</strong><br>
+          Send the full amount to:<br>
+          <span class="upi-id">aslamloves@fam</span>
+          After payment, note your <strong>Transaction ID / UTR number</strong> — you will enter it in the form.<br><br>
+          Payment doubts? <a href="https://wa.me/919999999999" target="_blank" style="color:var(--amber);font-weight:600;">WhatsApp us</a> or email <a href="mailto:robusinessa@gmail.com" style="color:var(--amber);font-weight:600;">robusinessa@gmail.com</a>
+        </div>
+        <a href="https://forms.gle/hQrovZxyDqmnBSr8A" target="_blank" class="google-form-btn">📋 Fill Order Form →</a>
+        <p class="form-note">Opens Google Form in new tab · Your PDF saves directly to our Google Drive · No login needed</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- TRACKING -->
+<section class="track-info" id="tracking">
+  <div class="container" style="text-align:center;">
+    <div class="section-tag" style="color:var(--amber-light);">Track Your Package</div>
+    <h2 class="section-title" style="color:var(--paper);">How to Track Your Order</h2>
+    <p class="section-sub" style="color:#a89e8e;margin:0 auto;">After dispatch, we send your Delhivery tracking number via WhatsApp. Simple and easy.</p>
+    <div class="track-info-box fade-in">
+      <div class="icon">📦</div>
+      <h3>Tracking is Easy</h3>
+      <p>No complicated system needed. Here's exactly how tracking works:</p>
+      <div class="track-steps">
+        <div class="ts-info-row"><span class="ts-icon">✅</span><span>You submit the order form after making UPI payment.</span></div>
+        <div class="ts-info-row"><span class="ts-icon">🖨️</span><span>We print and package your booklet within 1–2 business days.</span></div>
+        <div class="ts-info-row"><span class="ts-icon">🚚</span><span>We dispatch via Delhivery and receive an AWB tracking number.</span></div>
+        <div class="ts-info-row"><span class="ts-icon">💬</span><span>We <strong style="color:var(--amber-light);">WhatsApp the tracking number</strong> to your registered mobile number.</span></div>
+        <div class="ts-info-row"><span class="ts-icon">🔍</span><span>You visit Delhivery.com, enter the number, and see live delivery status.</span></div>
+      </div>
+      <a href="https://www.delhivery.com/track" target="_blank" class="delhivery-btn">Track on Delhivery.com →</a>
+    </div>
+  </div>
+</section>
+
+<div class="section-divider"></div>
+
+<!-- SUPPORT -->
+<section class="support" id="support">
+  <div class="container">
+    <div class="section-tag">We're Here to Help</div>
+    <h2 class="section-title">Support &amp; Contact</h2>
+    <p class="section-sub">Have questions? Reach out on WhatsApp for quick support or drop us an email.</p>
+    <div class="contact-cards fade-in">
+      <div class="contact-card">
+        <div class="icon">💬</div>
+        <h3>WhatsApp Support</h3>
+        <p>Chat with us for quick answers about your order, payment, or delivery status.</p>
+        <a href="https://wa.me/916297735266?text=Hello%2C%20I%20need%20help%20with%20my%20Print%20Booklate%20order." target="_blank">Chat on WhatsApp</a>
+      </div>
+      <div class="contact-card">
+        <div class="icon">📧</div>
+        <h3>Email Support</h3>
+        <p>For detailed queries, complaints, or order issues — email us anytime.</p>
+        <a href="mailto:robusinessa@gmail.com">Send an Email</a>
+      </div>
+      <div class="contact-card">
+        <div class="icon">📋</div>
+        <h3>Place an Order</h3>
+        <p>Ready to print your booklet? Open the order form and get started.</p>
+        <a href="https://forms.gle/hQrovZxyDqmnBSr8A" target="_blank">Open Order Form</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="logo">Print <span>Booklate</span></div>
+  <p style="margin-top:0.5rem;">Professional booklet printing · Pan India delivery via Delhivery</p>
+  <p style="margin-top:0.3rem;">📧 <a href="mailto:robusinessa@gmail.com">robusinessa@gmail.com</a> &nbsp;|&nbsp; 🖨️ 16×22 cm Booklet Format</p>
+  <p style="margin-top:0.3rem;">For Students · Writers · Teachers · Everyone</p>
+  <p style="margin-top:1rem;font-size:0.78rem;color:#2a201a;">
+    © 2026 Print Booklate. All rights reserved.&nbsp;&nbsp;<a href="#" onclick="openAdmin(event)" style="color:#1e1810;text-decoration:none;">·</a>
+  </p>
+</footer>
+
+<!-- ADMIN LOGIN -->
+<div id="admin-login">
+  <div class="admin-box">
+    <button class="admin-close" onclick="closeAdmin()">✕</button>
+    <h2>🔐 Admin Login</h2>
+    <input type="email" id="admin-email" placeholder="Email address" />
+    <input type="password" id="admin-pass" placeholder="Password" />
+    <button class="admin-login-btn" onclick="doAdminLogin()">Login</button>
+    <p id="admin-err" style="color:var(--rust);font-size:0.83rem;margin-top:0.8rem;"></p>
+  </div>
+</div>
+
+<!-- ADMIN DASHBOARD -->
+<div id="admin-dashboard">
+  <div class="admin-header">
+    <span>🖨️ Print Booklate — Admin Dashboard</span>
+    <button onclick="logoutAdmin()">Logout</button>
+  </div>
+  <div class="admin-content">
+    <h2>Admin Panel</h2>
+    <div class="admin-info-box">
+      📌 <strong>All orders are stored in your Google Sheet</strong> linked to your Google Form. 
+      Open the sheet to see customer names, addresses, phone numbers, UPI transaction IDs, and uploaded files.<br>
+      After dispatching via Delhivery — <strong>WhatsApp the AWB tracking number</strong> to the customer's mobile number.
+    </div>
+    <div class="admin-links">
+      <div class="admin-link-card">
+        <div class="icon">📊</div>
+        <h3>View All Orders</h3>
+        <p>See all customer orders, details, UPI transaction IDs in your Google Sheet.</p>
+        <a href="https://docs.google.com/spreadsheets" target="_blank">Open Google Sheet</a>
+      </div>
+      <div class="admin-link-card">
+        <div class="icon">📁</div>
+        <h3>View Uploaded Files</h3>
+        <p>See all customer PDF documents and cover pages uploaded via the order form.</p>
+        <a href="https://drive.google.com" target="_blank">Open Google Drive</a>
+      </div>
+      <div class="admin-link-card">
+        <div class="icon">📋</div>
+        <h3>View Order Form</h3>
+        <p>See your Google Form responses and manage form settings.</p>
+        <a href="https://forms.google.com" target="_blank">Open Google Forms</a>
+      </div>
+      <div class="admin-link-card">
+        <div class="icon">🚚</div>
+        <h3>Delhivery Tracking</h3>
+        <p>Track all dispatched orders and shipment status on Delhivery.</p>
+        <a href="https://www.delhivery.com" target="_blank">Open Delhivery</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+document.getElementById('hamburger').onclick = function() {
+  document.getElementById('navLinks').classList.toggle('open');
+};
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+function calculateCost() {
+  const pages = parseInt(document.getElementById('calc-pages').value);
+  const copies = parseInt(document.getElementById('calc-copies').value);
+  const state = document.getElementById('calc-state').value;
+  if(!pages || pages < 1 || !copies || copies < 1) {
+    showToast('Please enter valid pages and copies.', 'error'); return;
+  }
+  let printCost = copies <= 5 ? pages * copies * 1 : 3.5 * (pages * copies) / 4;
+  let packCost = copies <= 5 ? 10 : 5 * copies;
+  const deliveryMap = { '': 0, 'local': 40, 'zone1': 80, 'zone2': 110, 'zone3': 130, 'zone4': 150 };
+  const deliveryCost = deliveryMap[state] || 0;
+  const total = printCost + packCost + deliveryCost;
+
+  document.getElementById('rb-print').textContent = '₹' + printCost.toFixed(2);
+  document.getElementById('rb-pack').textContent = '₹' + packCost.toFixed(2);
+  document.getElementById('rb-delivery').textContent = deliveryCost ? '~₹' + deliveryCost : 'Select state for estimate';
+  document.getElementById('rb-total').textContent = deliveryCost ? '~₹' + total.toFixed(2) : '₹' + (printCost + packCost).toFixed(2) + ' + delivery';
+
+  let note = '<strong>Note:</strong> ';
+  if(copies <= 5) {
+    note += `Print: ₹1 × ${pages} pages × ${copies} copies = ₹${(pages*copies).toFixed(2)}. Packaging: flat ₹10.`;
+  } else {
+    note += `Bulk formula: 3.5 × (${pages}×${copies}) / 4 = ₹${printCost.toFixed(2)} print. Packaging: ₹5 × ${copies} = ₹${packCost.toFixed(2)}.`;
+  }
+  if(!state) note += ' Select a state to estimate delivery cost.';
+  document.getElementById('rb-note').innerHTML = note;
+  document.getElementById('result-placeholder').style.display = 'none';
+  document.getElementById('result-breakdown').classList.add('show');
+}
+
+function openAdmin(e) {
+  e.preventDefault();
+  document.getElementById('admin-login').classList.add('show');
+}
+function closeAdmin() {
+  document.getElementById('admin-login').classList.remove('show');
+  document.getElementById('admin-err').textContent = '';
+}
+function doAdminLogin() {
+  const email = document.getElementById('admin-email').value.trim();
+  const pass = document.getElementById('admin-pass').value;
+  if(email === 'robusinessa@gmail.com' && pass === 'admin@printbooklate') {
+    closeAdmin();
+    document.getElementById('admin-dashboard').classList.add('show');
+  } else {
+    document.getElementById('admin-err').textContent = 'Invalid credentials.';
+  }
+}
+function logoutAdmin() {
+  document.getElementById('admin-dashboard').classList.remove('show');
+}
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (type === 'error' ? ' error' : '');
+  setTimeout(() => { t.classList.remove('show'); }, 3500);
+}
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', function(e) {
+    const href = this.getAttribute('href');
+    if(href && href.length > 1) {
+      const target = document.querySelector(href);
+      if(target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        document.getElementById('navLinks').classList.remove('open');
+      }
+    }
+  });
+});
+</script>
+</body>
+</html>
